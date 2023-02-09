@@ -72,7 +72,6 @@ int main()
     int success;
     char infoLog[512];
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-
     if (!success)
     {
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
@@ -88,13 +87,37 @@ int main()
 
     // Check if the compilation was successful
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-
-    if (!fragmentSuccess)
+    if (!success)
     {
         glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
         printf("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n");
         printf(infoLog, '\n');
     }
+
+    // Create a shader program, attach shaders, and link
+    unsigned int shaderProgram;
+    shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+
+    // Check if linking was successful
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success)
+    {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        printf("ERROR::SHADER::LINKING_FAILED\n");
+        printf(infoLog, '\n');
+    }
+
+    // Activate the shader program
+    // Every shader and rendering call after this will use this program object,
+    // and thus the shaders
+    glUseProgram(shaderProgram);
+
+    // Don't need the actual shaders once they have been linked into the program
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
 
     while(!glfwWindowShouldClose(window))
     {
