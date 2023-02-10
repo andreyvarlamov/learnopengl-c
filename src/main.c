@@ -129,11 +129,22 @@ int main()
         -0.0f,  0.5f, 0.0f
     };
 
-    // Vertex Buffer Object(VBO) - send vertices to the GPU's memory in
+    // Vertex Buffer Object (VBO) - send vertices to the GPU's memory in
     // batches.
     // Generate an OpenGL buffer object.
     unsigned int VBO;
     glGenBuffers(1, &VBO);
+
+    // Vertex Array Object (VAO) - any subsequent vertex attribute calls will
+    // be stored inside the VAO.
+    unsigned int VAO;
+    glGenVertexArrays(1, &VAO);
+
+    // 1. Bind VAO
+
+    glBindVertexArray(VAO);
+
+    // 2. Copy our vertices array in a buffer for OpenGL to use
 
     // OpenGL has many types of buffer objects.
     // Buffer type of a vertex buffer object is GL_ARRAY_BUFFER.
@@ -152,9 +163,11 @@ int main()
                  sizeof(vertices),
                  vertices,
                  GL_STATIC_DRAW);
-
     // ^^^ As of this step, we stored the vertex data within the GPU memory
     // as managed by a vertex buffer object named VBO
+
+    // 3. Set our vertex attributes pointers
+
     // Tell OpenGL how to interpret vertex buffer data
     // The first argument - we set location of the vertex attribute to 0 in
     // vertex shader (layout (location = 0))
@@ -166,6 +179,7 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
+    // ............... WITHOUT VAOs ..............
     // Actually drawing an object would look like this
     // This process has to be repeated every time we want to draw an object
     // 0. copy our vertices in a buffer for OpenGL to use
@@ -178,6 +192,14 @@ int main()
     // glUseProgram(shaderProgram);
     // 3. now draw the object
     // someOpenGLFunctionThatDrawsOurTriangle();
+    // ...........................................
+
+    // ............... WITH VAOs .................
+    // Drawing code (in render loop)
+    // glUseProgram(shaderProgram);
+    // glBindVertexArray(VAO);
+    // someOpenGLFunctionThatDrawsOurTriangle();
+    // ...........................................
 
     while(!glfwWindowShouldClose(window))
     {
@@ -185,6 +207,16 @@ int main()
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        // 4. Draw the triangle
+
+        glUseProgram(shaderProgram);
+        glBindVertexArray(VAO);
+        // Draw primitives using currently active shader, the previously defined
+        // vertex attribute configuration and the VBO's vertex data (indirectly
+        // bound via the VAO)
+        // Draw in triangles mode, read 3 vertices started from 0
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
