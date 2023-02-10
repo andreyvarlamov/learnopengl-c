@@ -53,6 +53,7 @@ int main()
 
     glfwMakeContextCurrent(window);
 
+    // GLAD: load all OpenGL function pointers
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         printf("Error when loading GLAD.\n");
@@ -123,17 +124,35 @@ int main()
 
     // ----------------- DRAW TRIANGLE ---------------------------------------
     // Specify triangle vertices
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-        -0.0f,  0.5f, 0.0f
-    };
+    // float vertices[] = {
+    //     -0.5f, -0.5f, 0.0f,
+    //      0.5f, -0.5f, 0.0f,
+    //     -0.0f,  0.5f, 0.0f
+    // };
 
     // Vertex Buffer Object (VBO) - send vertices to the GPU's memory in
     // batches.
     // Generate an OpenGL buffer object.
+    // unsigned int VBO;
+    // glGenBuffers(1, &VBO);
+
+    // Using Element Buffer Object (EBO)
+    // index drawing
+    float vertices [] = {
+        0.5f,  0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+       -0.5f, -0.5f, 0.0f,
+       -0.5f,  0.5f, 0.0f
+    };
+    unsigned int indices[] = {
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
+
     unsigned int VBO;
     glGenBuffers(1, &VBO);
+    unsigned int EBO;
+    glGenBuffers(1, &EBO);
 
     // Vertex Array Object (VAO) - any subsequent vertex attribute calls will
     // be stored inside the VAO.
@@ -159,12 +178,13 @@ int main()
     // GL_DYNAMIC_DRAW: the data is changed a lot and used many times.
     // E.g. for the latter, the GPU will place the data in memory that allows
     // for faster writes
-    glBufferData(GL_ARRAY_BUFFER,
-                 sizeof(vertices),
-                 vertices,
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     // ^^^ As of this step, we stored the vertex data within the GPU memory
     // as managed by a vertex buffer object named VBO
+
+    // (Using EBO)
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // 3. Set our vertex attributes pointers
 
@@ -216,7 +236,17 @@ int main()
         // vertex attribute configuration and the VBO's vertex data (indirectly
         // bound via the VAO)
         // Draw in triangles mode, read 3 vertices started from 0
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        // (If using VBO)
+        // glDrawArrays(GL_TRIANGLES, 0, 3);
+        // (If using EBO)
+        // Uncomment for wireframe mode
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+
+        // Uncomment to switch back to fill mode
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
