@@ -37,6 +37,7 @@ void processInput(GLFWwindow *window)
 
 int main()
 {
+    // ----------------- INITIALIZE WINDOW -----------------------------------
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -62,6 +63,7 @@ int main()
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+    // ----------------- COMPILE SHADER PROGRAM ------------------------------
     // Compile the vertex shader
     unsigned int vertexShader;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -115,9 +117,67 @@ int main()
     // and thus the shaders
     glUseProgram(shaderProgram);
 
-    // Don't need the actual shaders once they have been linked into the program
+    // Don't need the actual shaders once they have been linked into the shader program
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+
+    // ----------------- DRAW TRIANGLE ---------------------------------------
+    // Specify triangle vertices
+    float vertices[] = {
+        -0.5f, -0.5f, 0.0f,
+         0.5f, -0.5f, 0.0f,
+        -0.0f,  0.5f, 0.0f
+    };
+
+    // Vertex Buffer Object(VBO) - send vertices to the GPU's memory in
+    // batches.
+    // Generate an OpenGL buffer object.
+    unsigned int VBO;
+    glGenBuffers(1, &VBO);
+
+    // OpenGL has many types of buffer objects.
+    // Buffer type of a vertex buffer object is GL_ARRAY_BUFFER.
+    // Bind the newly created buffer to the GL_ARRAY_BUFFER target.
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    // With the currently bound buffer - VBO, copy previously defined vertex
+    // data into the buffer's memory
+    // Fourth parameter - how we want the GPU to manage the given data.
+    // GL_STREAM_DRAW: the data is set only once and used by the GPU at most a few times.
+    // GL_STATIC_DRAW: the data is set only once and used many times.
+    // GL_DYNAMIC_DRAW: the data is changed a lot and used many times.
+    // E.g. for the latter, the GPU will place the data in memory that allows
+    // for faster writes
+    glBufferData(GL_ARRAY_BUFFER,
+                 sizeof(vertices),
+                 vertices,
+                 GL_STATIC_DRAW);
+
+    // ^^^ As of this step, we stored the vertex data within the GPU memory
+    // as managed by a vertex buffer object named VBO
+    // Tell OpenGL how to interpret vertex buffer data
+    // The first argument - we set location of the vertex attribute to 0 in
+    // vertex shader (layout (location = 0))
+    // The fifth argument - "stride" - space between consecutive vertex attributes.
+    // Each vertex attribute takes its data from memory mamange by a VBO;
+    // Which VBO it takes its data from is determined by the VBO currently bound
+    // to GL_ARRAY_BUFFER; the VBO object that we created is still bound to it
+    // since the line: glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // Actually drawing an object would look like this
+    // This process has to be repeated every time we want to draw an object
+    // 0. copy our vertices in a buffer for OpenGL to use
+    // glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    // 1. then set the vertex attributes pointers
+    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    // glEnableVertexAttribArray(0);
+    // 2. use our shader program when we want to render an object
+    // glUseProgram(shaderProgram);
+    // 3. now draw the object
+    // someOpenGLFunctionThatDrawsOurTriangle();
 
     while(!glfwWindowShouldClose(window))
     {
@@ -125,40 +185,6 @@ int main()
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
-        // Specify triangle vertices
-        float vertices[] = {
-            -0.5f, -0.5f, 0.0f,
-             0.5f, -0.5f, 0.0f,
-            -0.0f,  0.5f, 0.0f
-        };
-
-        // Vertex Buffer Object(VBO) - send vertices to the GPU's memory in
-        // batches.
-        // Generate an OpenGL buffer object.
-        unsigned int VBO;
-        glGenBuffers(1, &VBO);
-
-        // OpenGL has many types of buffer objects.
-        // Buffer type of a vertex buffer object is GL_ARRAY_BUFFER.
-        // Bind the newly created buffer to the GL_ARRAY_BUFFER target.
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-        // With the currently bound buffer - VBO, copy previously defined vertex
-        // data into the buffer's memory
-        // Fourth parameter - how we want the GPU to manage the given data.
-        // GL_STREAM_DRAW: the data is set only once and used by the GPU at most a few times.
-        // GL_STATIC_DRAW: the data is set only once and used many times.
-        // GL_DYNAMIC_DRAW: the data is changed a lot and used many times.
-        // E.g. for the latter, the GPU will place the data in memory that allows
-        // for faster writes
-        glBufferData(GL_ARRAY_BUFFER,
-                     sizeof(vertices),
-                     vertices,
-                     GL_STATIC_DRAW);
-
-        // ^^^ As of this step, we stored the vertex data within the GPU memory
-        // as managed by a vertex buffer object named VBO
 
         glfwSwapBuffers(window);
         glfwPollEvents();
