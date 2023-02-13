@@ -126,11 +126,11 @@ int main()
 
     // ----------------- DRAW TRIANGLE ---------------------------------------
     // Specify triangle vertices
-    // float vertices[] = {
-    //     -0.5f, -0.5f, 0.0f,
-    //      0.5f, -0.5f, 0.0f,
-    //     -0.0f,  0.5f, 0.0f
-    // };
+    float vertices[] = {
+        -0.5f, -0.5f, 0.0f,
+         0.5f, -0.5f, 0.0f,
+        -0.0f,  0.5f, 0.0f
+    };
 
     // Vertex Buffer Object (VBO) - send vertices to the GPU's memory in
     // batches.
@@ -140,21 +140,21 @@ int main()
 
     // Using Element Buffer Object (EBO)
     // index drawing
-    float vertices [] = {
-        0.5f,  0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-       -0.5f, -0.5f, 0.0f,
-       -0.5f,  0.5f, 0.0f
-    };
-    unsigned int indices[] = {
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
-    };
+    // float vertices [] = {
+    //     0.5f,  0.5f, 0.0f,
+    //     0.5f, -0.5f, 0.0f,
+    //    -0.5f, -0.5f, 0.0f
+    //    -0.5f,  0.5f, 0.0f
+    // };
+    // unsigned int indices[] = {
+    //     0, 1, 3, // first triangle
+    //     1, 2, 3  // second triangle
+    // };
 
     unsigned int VBO;
     glGenBuffers(1, &VBO);
-    unsigned int EBO;
-    glGenBuffers(1, &EBO);
+    // unsigned int EBO;
+    // glGenBuffers(1, &EBO);
 
     // Vertex Array Object (VAO) - any subsequent vertex attribute calls will
     // be stored inside the VAO.
@@ -185,8 +185,8 @@ int main()
     // as managed by a vertex buffer object named VBO
 
     // (Using EBO)
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // 3. Set our vertex attributes pointers
 
@@ -244,10 +244,10 @@ int main()
         // bound via the VAO)
         // Draw in triangles mode, read 3 vertices started from 0
         // (If using VBO)
-        // glDrawArrays(GL_TRIANGLES, 0, 3);
-        // (If using EBO)
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        // (If using EBO)
+        // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
 
         glfwSwapBuffers(window);
