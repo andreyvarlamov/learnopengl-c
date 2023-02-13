@@ -9,19 +9,22 @@
 const char *vertexShaderSource =
     "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
+    "layout (location = 1) in vec3 aColor;\n"
+    "out vec3 ourColor;\n"
     "void main()\n"
     "{\n"
-    "    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "    gl_Position = vec4(aPos, 1.0);\n"
+    "    ourColor = aColor;\n"
     "}\0";
 
 // Define fragment shader source code
 const char *fragmentShaderSource =
     "#version 330 core\n"
     "out vec4 FragColor;\n"
-    "uniform vec4 ourColor;\n"
+    "in vec3 ourColor;\n"
     "void main()\n"
     "{\n"
-    "    FragColor = ourColor;"
+    "    FragColor = vec4(ourColor, 1.0);"
     "}\0";
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -126,11 +129,11 @@ int main()
 
     // ----------------- DRAW TRIANGLE ---------------------------------------
     // Specify triangle vertices
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-        -0.0f,  0.5f, 0.0f
-    };
+    // float vertices[] = {
+    //     -0.5f, -0.5f, 0.0f,
+    //      0.5f, -0.5f, 0.0f,
+    //     -0.0f,  0.5f, 0.0f
+    // };
 
     // Vertex Buffer Object (VBO) - send vertices to the GPU's memory in
     // batches.
@@ -150,6 +153,13 @@ int main()
     //     0, 1, 3, // first triangle
     //     1, 2, 3  // second triangle
     // };
+
+    float vertices[] = {
+        // positions            // colors
+        -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f, 0.0f,     0.0f, 1.0f, 0.0f,
+        -0.0f,  0.5f, 0.0f,     0.0f, 0.0f, 1.0f
+    };
 
     unsigned int VBO;
     glGenBuffers(1, &VBO);
@@ -198,8 +208,10 @@ int main()
     // Which VBO it takes its data from is determined by the VBO currently bound
     // to GL_ARRAY_BUFFER; the VBO object that we created is still bound to it
     // since the line: glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     // ............... WITHOUT VAOs ..............
     // Actually drawing an object would look like this
@@ -229,11 +241,6 @@ int main()
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
-        float timeValue = glfwGetTime();
-        float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-        int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-        glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 
         // 4. Draw the triangle
 
