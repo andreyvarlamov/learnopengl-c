@@ -1,5 +1,5 @@
 a.out: main.o glad/glad.o
-	gcc -o a.out main.o glad/glad.o -I include -lglfw
+	gcc -o a.out main.o glad/glad.o -I include -lglfw -lm
 
 main.o: src/main.c include/glad/glad.h
 	gcc -o main.o -c src/main.c -I include
